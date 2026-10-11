@@ -20,6 +20,11 @@
       margin: 0;
     }
 
+    button {
+      background: none;
+      border: none;
+    }
+
     .disable {
       display: none;
     }
@@ -33,8 +38,13 @@
 
     .button button:hover,
     .timer_screen_control button:hover,
-    .timer_control button:hover {
+    .timer_control button:hover,
+    #count_up_button:hover {
       background: #7AC8FF;
+    }
+
+    #count_down_button button:hover {
+      background: #F5CB69;
     }
 
     .button button,
@@ -48,6 +58,22 @@
       border-color: #5BA7DD;
     }
 
+    #count_up_button {
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      background-color: #91DCFF;
+      border: 2px solid #60AADE;
+      border-right: none;
+    }
+
+    #count_down_button {
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      border-left: none;
+      background-color: #FFDC87;
+      border: 2px solid #C5A574;
+    }
+
     .count_button {
       text-align: center;
       font-size: 3vh;
@@ -57,8 +83,8 @@
       right: 3%;
     }
 
-    #count_down_button {
-      background-color: #FFDC87;
+    .count_button_hover_on button:hover {
+      background: #F5CB69;
     }
 
     #background_count {
@@ -84,6 +110,7 @@
       height: 12vh;
       box-sizing: border-box;
       border: 0px;
+      outline: none;
     }
 
     input[type="number"]::-webkit-outer-spin-button,
@@ -172,23 +199,15 @@
       transition: stroke-dashoffset 1s linear;
     }
 
-    .timer_screen_control button {
-      color: #0F1946;
-      background: #91DCFF;
-      font-size: xx-large;
-      font-weight: bold;
-      border-radius: 15px;
+    .timer_screen_control img:nth-child(1) {
       position: absolute;
-      flex-direction: column;
-    }
-
-    .timer_screen_control button:nth-child(1) {
       right: 1%;
       top: 1%;
-      margin-right: 90px;
+      margin-right: 60px
     }
 
-    .timer_screen_control button:nth-child(2) {
+    .timer_screen_control img:nth-child(2) {
+      position: absolute;
       right: 1%;
       top: 1%;
     }
@@ -196,9 +215,10 @@
     #timer_screen_text {
       color: white;
       text-align: center;
-      font-size: 65vmin;
-      max-width: 99vw;
+      font-size: 38vw;
       font-weight: bold;
+      max-width: 100%;
+      min-width: 0;
       position: absolute;
       top: 50%;
       left: 50%;
@@ -211,8 +231,9 @@
   <div id="settings_screen" class="enable">
     <div class="count_button button">
       <p><span id="background_count">カウント</span></p>
-      <button id="count_up_button" type="button" onclick="set_timer_count('up')">アップ</button>
-      <button id="count_down_button" type="button" onclick="set_timer_count('down')">ダウン</button>
+      <button id="count_up_button" class="count_button_off" type="button"
+        onclick="set_timer_count('up')">アップ</button><button id="count_down_button" class="count_button_on" type="button"
+        onclick="set_timer_count('down')">ダウン</button>
     </div>
     <div class="timer_control">
       <button type="button" onclick="a_up_timer('minute')" onmousewheel="a_up_timer('minute')">▲</button>
@@ -246,14 +267,12 @@
         <div class="progress_bar"></div>
       </div>
     </div>
-    <div>
-      <div class="timer_screen_text">
-        <span id="timer_screen_text"></span>
-      </div>
+    <div class="timer_screen_text">
+      <span id="timer_screen_text"></span>
     </div>
     <div class="timer_screen_control">
-      <button type="button" onclick="pause()">一時停止</button>
-      <button type="button" onclick="stop()">停止</button>
+      <img src="pause.svg" width="48px" height="48px" alt="一時停止" onclick="pause()">
+      <img src="stop.svg" width="48px" height="48px" alt="停止" onclick="stop()">
     </div>
   </div>
 
@@ -270,10 +289,20 @@
         timer_count = text;
       } if (timer_count === 'up') {
         document.getElementById("count_up_button").style.backgroundColor = "#FFDC87";
+        document.getElementById("count_up_button").style.border = "2px solid #C5A574";
+        document.getElementById("count_up_button").classList.toggle("count_button_hover_on");
         document.getElementById("count_down_button").style.backgroundColor = "#91DCFF";
+        document.getElementById("count_down_button").style.border = "2px solid #60AADE";
+        document.getElementById("count_down_button").style.borderLeft = "none";
+        document.getElementById("count_down_button").classList.toggle("count_button_hover_on");
       } else {
         document.getElementById("count_up_button").style.backgroundColor = "#91DCFF";
+        document.getElementById("count_up_button").style.border = "2px solid #60AADE";
+        document.getElementById("count_up_button").classList.toggle("count_button_hover_on");
+        document.getElementById("count_up_button").style.borderRight = "none";
         document.getElementById("count_down_button").style.backgroundColor = "#FFDC87";
+        document.getElementById("count_down_button").style.border = "2px solid #C5A574";
+        document.getElementById("count_down_button").classList.toggle("count_button_hover_on");
       }
     }
 
@@ -421,12 +450,22 @@
 
       if (page_height !== window_height) {
         let SA = page_height - window_height;
-        document.querySelector('.circle_background').height = window_height - (progress_height + 30);
+        if (SA !== "0") {
+          document.querySelector('.circle_background').height = window_height - (progress_height + 30);
+        }
       }
     }
 
     addEventListener("load", resize());
     addEventListener("resize", resize());
+
+    document.querySelector('.timer_control').addEventListener('wheel', (event) => {
+      if (event.deltaY > 0) {
+        a_down_timer(second);
+      } else {
+        a_up_timer(second);
+      }
+    }, { passive: true });
   </script>
 </body>
 
