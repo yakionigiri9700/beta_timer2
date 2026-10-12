@@ -101,8 +101,6 @@
       text-align: center;
       font-size: 12vh;
       font-weight: bold;
-      display: flex;
-      justify-content: space-between;
     }
 
     .timer_text input {
@@ -114,8 +112,12 @@
       width: 12vh;
       height: 12vh;
       box-sizing: border-box;
-      border: 0px;
-      outline: none;
+      border: 0;
+      outline: 0;
+    }
+
+    .timer_text span {
+      font-size: 10vh;
     }
 
     input[type="number"]::-webkit-outer-spin-button,
@@ -124,6 +126,11 @@
       margin: 0;
     }
 
+    #reset_button {
+      position: absolute;
+      top: 50%;
+      right: 10%;
+    }
 
     #timer_screen {
       position: relative;
@@ -254,8 +261,8 @@
       <button type="button" onclick="a_down_timer('second')" onmousewheel="a_down_timer('second')">▼</button>
     </div>
     <div class="button">
-      <button type="button" onclick="timer_start()">スタート</button>
-      <button type="button" onclick="reset()">リセット</button>
+      <img src="play2.svg" id="start_button" width="150px" height="150px" alt="スタート" onclick="timer_start()">
+      <img src="refresh.svg" id="reset_button" width="90px" height="90px" alt="リセット" onclick="reset()">
     </div>
 
   </div>
@@ -276,7 +283,7 @@
       <span id="timer_screen_text"></span>
     </div>
     <div class="timer_screen_control">
-      <img src="pause.svg" width="48px" height="48px" alt="一時停止" onclick="pause()">
+      <img src="pause.svg" id="pause_button" width="48px" height="48px" alt="一時停止" onclick="pause()">
       <img src="stop.svg" width="48px" height="48px" alt="停止" onclick="stop()">
     </div>
   </div>
@@ -450,11 +457,13 @@
 
     function pause() {
       if (pause_state === "running") {
+        document.getElementById("pause_button").setAttribute("src", "play.svg");
         pause_state = "paused";
         pause_to = "pause";
         clearInterval(timer_interval);
         timer_interval = null;
       } else {
+        document.getElementById("pause_button").setAttribute("src", "pause.svg");
         pause_state = "running";
         pause_to = "running";
         timer_interval = setInterval(timer, 1000);
