@@ -283,6 +283,8 @@
     let now_seconds = 0;
     let minute = 0;
     let second = 0;
+    let pause_state = "running";
+    let pause_to = "";
 
     function set_timer_count(text) {
       if (text === 'up' || text === 'down') {
@@ -319,6 +321,7 @@
     function update_timer_display() {
       document.getElementById("timer_screen_text").textContent = minute.toString().padStart(2, '0') + ":" + second.toString().padStart(2, '0');
       document.querySelector(".progress_bar").style.width = (now_seconds / total_seconds) * 100 + "%";
+      document.querySelector("#timer_circle_progress").style.strokeDashoffset = offset;
     }
 
     // 入力欄から現在の数値を読み込む関数
@@ -352,20 +355,68 @@
     const getLength = radius => (radius * 2) * 3.14;//関数 "円の周の長さを計算する"
     const getStep = (length, time) => length / time;//関数 "1秒あたりの移動距離を計算する"
 
+    let offset = 0;
+
+    function timer() {
+      if (timer_count === "down") {
+        // ダウンカウント処理
+        if (minute === 0 && second === 0) {
+          clearInterval(timer_interval);
+          timer_interval = null;
+          document.querySelector("#timer_screen_text").style.color = "red";
+          audio = new Audio('alarm.mp3');
+          audio.play();
+          return;
+        }
+
+        if (second > 0) {
+          second--;
+          offset = offset + getStep(getLength(50), total_seconds);
+        } else {
+          second = 59;
+          offset = offset + getStep(getLength(50), total_seconds);
+          if (minute > 0) {
+            minute--;
+          }
+        }
+        console.log(offset);
+        now_seconds = minute * 60 + second;
+      } else {
+        // アップカウント処理
+        second++;
+        offset = offset - getStep(getLength(50), total_seconds);
+        if (second >= 60) {
+          second = 0;
+          minute++;
+        }
+
+        now_seconds = minute * 60 + second;
+        if (now_seconds > total_seconds) {
+          clearInterval(timer_interval);
+          timer_interval = null;
+          document.querySelector("#timer_screen_text").style.color = "red";
+          audio = new Audio('alarm.mp3');
+          audio.play();
+          return;
+        }
+      }
+      update_timer_display();
+    }
+
     // タイマー開始
     function timer_start() {
       if (timer_interval !== null || total_seconds == 0) return; // 既に動いていたら二重起動防止
-
       document.querySelector("#settings_screen").classList.replace("enable", "disable");
-      document.querySelector("#timer_screen").classList.replace("disable", "enable");
-      let offset = 0;
+      document.querySelector("#timer_screen").classList.replace("disable", "enable"); // 画面切り替え
       if (timer_count === "up") {
         offset = getLength(50);
+      } else {
+        offset = 0;
       }
 
       load_settings_inputs("total");
       up_count_reset = "true"; // アップカウントのリセットフラグを立てる
-      document.querySelector("#timer_screen_text").style.color = "white";
+      document.querySelector("#timer_screen_text").style.color = "white"; // テキストを白色にする
 
       //アップカウントのときのラグ対策
       if (timer_count === "up" && now_seconds > 0) {
@@ -376,52 +427,7 @@
         document.querySelector(".progress_bar").style.width = "0%";
         document.querySelector("#timer_circle_progress").style.strokeDashoffset = getLength(50);
       }
-
-      timer_interval = setInterval(function () {
-        if (timer_count === "down") {
-          // ダウンカウント処理
-          if (minute === 0 && second === 0) {
-            clearInterval(timer_interval);
-            timer_interval = null;
-            document.querySelector("#timer_screen_text").style.color = "red";
-            audio = new Audio('alarm.mp3');
-            audio.play();
-            return;
-          }
-
-          if (second > 0) {
-            second--;
-            offset = offset + getStep(getLength(50), total_seconds);
-          } else {
-            second = 59;
-            offset = offset + getStep(getLength(50), total_seconds);
-            if (minute > 0) {
-              minute--;
-            }
-          }
-          now_seconds = minute * 60 + second;
-        } else {
-          // アップカウント処理
-          second++;
-          offset = offset - getStep(getLength(50), total_seconds);
-          if (second >= 60) {
-            second = 0;
-            minute++;
-          }
-
-          now_seconds = minute * 60 + second;
-          if (now_seconds > total_seconds) {
-            clearInterval(timer_interval);
-            timer_interval = null;
-            document.querySelector("#timer_screen_text").style.color = "red";
-            audio = new Audio('alarm.mp3');
-            audio.play();
-            return;
-          }
-        }
-        update_timer_display();
-        document.querySelector('#timer_circle_progress').style.strokeDashoffset = offset;
-      }, 1000);
+      timer_interval = setInterval(timer, 1000);
     }
 
     // リセット
@@ -438,26 +444,20 @@
       timer_interval = null;
     }
 
-    function resize() {
-      let page_width = document.documentElement.scrollWidth;
-      let page_height = document.documentElement.scrollHeight;
-      let window_width = window.innerWidth;
-      let window_height = window.innerHeight;
-      let progress_width = document.querySelector('.progress_background').offsetWidth;
-      let progress_height = document.querySelector('.progress_background').offsetHeight;
-      let circle_width = document.querySelector('.circle_background').offsetWidth;
-      let circle_height = document.querySelector('.circle_background').offsetWidth;
-
-      if (page_height !== window_height) {
-        let SA = page_height - window_height;
-        if (SA !== "0") {
-          document.querySelector('.circle_background').height = window_height - (progress_height + 30);
-        }
+    function pause() {
+      if (pause_state === "running") {
+        pause_state = "paused";
+        pause_to = "pause";
+        clearInterval(timer_interval);
+        timer_interval = null;
+      } else {
+        pause_state = "running";
+        pause_to = "running";
+        timer_interval = setInterval(timer, 1000);
       }
+      document.querySelector('.progress_bar').style.animationPlayState = pause_state;
+      document.getElementById('timer_circle_progress').style.animationPlayState = pause_state;
     }
-
-    addEventListener("load", resize());
-    addEventListener("resize", resize());
 
     document.querySelector('.timer_control').addEventListener('wheel', (event) => {
       if (event.deltaY > 0) {
