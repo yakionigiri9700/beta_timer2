@@ -223,11 +223,11 @@
     }
 
     .progress_bar {
-      width: 0%;
+      width: 100%;
       height: 100%;
       background-color: #1C95D4;
       border-radius: 10px;
-      transition: width 1s linear;
+      transition: none;
     }
 
     .timer_circle {
@@ -262,7 +262,7 @@
       stroke-dasharray: calc((50 * 2) * 3.14);
       /* 点線を始める位置、どのぐらい消えさせるか */
       stroke-dashoffset: 0;
-      transition: stroke-dashoffset 1s linear;
+      transition: none;
     }
 
     .timer_screen_control img:nth-child(1) {
@@ -440,6 +440,8 @@
             audio = new Audio('alarm.mp3');
             audio.play();
           }
+          document.getElementById("timer_circle_progress").style.transition = "none";
+          document.querySelector(".progress_bar").style.transition = "none";
           return;
         }
 
@@ -472,6 +474,8 @@
             audio = new Audio('alarm.mp3');
             audio.play();
           }
+          document.getElementById("timer_circle_progress").style.transition = "none";
+          document.querySelector(".progress_bar").style.transition = "none";
           return;
         }
       }
@@ -481,9 +485,11 @@
     // タイマー開始
     function timer_start() {
       if (timer_interval !== null || total_seconds == 0) return; // 既に動いていたら二重起動防止
-      document.querySelector("#settings_screen").classList.replace("enable", "disable");
-      document.querySelector("#timer_screen").classList.replace("disable", "enable");
-      document.body.style.backgroundColor = "#141E42"; // 画面切り替え
+
+      document.getElementById("timer_circle_progress").style.transition = "none";
+      document.querySelector(".progress_bar").style.transition = "none";
+
+      document.body.style.backgroundColor = "#141E42";
       if (timer_count === "up") {
         offset = getLength(50);
       } else {
@@ -503,6 +509,12 @@
         document.querySelector(".progress_bar").style.width = "0%";
         document.querySelector("#timer_circle_progress").style.strokeDashoffset = getLength(50);
       }
+
+      document.getElementById("timer_circle_progress").style.transition = "stroke-dashoffset 1s linear";
+      document.querySelector(".progress_bar").style.transition = "width 1s linear";
+
+      document.querySelector("#settings_screen").classList.replace("enable", "disable");
+      document.querySelector("#timer_screen").classList.replace("disable", "enable");
       timer_interval = setInterval(timer, 1000);
     }
 
