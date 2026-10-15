@@ -7,7 +7,6 @@
   <title>自分で作るタイマー</title>
   <style>
     :root {
-      background: #CDEBFF;
       color: white;
       font-family: "Yu Gothic Ul", sans-serif;
       user-select: none;
@@ -24,6 +23,16 @@
       --count_up_color: #91DCFF;
       --count_up_hover_color: #7AC8FF;
       --count_up_border_color: #60AADE;
+      --circle_color: #FFDC87;
+      --circle_hover_color: #C5A574;
+      --circle_border_color: #C5A574;
+      --progress_color: #FFDC87;
+      --progress_hover_color: #F5CB69;
+      --progress_border_color: #C5A574;
+    }
+
+    body {
+      background-color: #CDEBFF;
     }
 
     button {
@@ -51,12 +60,15 @@
     .button button,
     .timer_control button {
       text-align: center;
-      font-size: 3vh;
+      font-size: 2vh;
       font-weight: bold;
       background: #91DCFF;
       color: #0F1946;
       border-radius: 10px;
       border-color: #5BA7DD;
+      padding: 5px;
+      width: 11vh;
+      height: 6vh;
     }
 
     #count_up_button {
@@ -132,11 +144,53 @@
       right: 10%;
     }
 
+    .control {
+      display: flex;
+      align-items: center;
+      flex-direction: row;
+    }
+
+    #music_button {
+      border: 5px solid #0F1946;
+      border-radius: 50%;
+    }
+
+    .progress_control {
+      position: absolute;
+      top: 25%;
+      left: 3%;
+    }
+
+    #circle_control_button,
+    #bar_control_button {
+      box-sizing: border-box;
+      width: 17vh;
+      margin: 15px;
+      display: block;
+    }
+
+    #circle_control_button {
+      background-color: var(--circle_color);
+      border: 2px solid var(--circle_border_color);
+    }
+
+    #circle_control_button:hover {
+      background-color: var(--circle_hover_color);
+    }
+
+    #bar_control_button {
+      background-color: var(--progress_color);
+      border: 2px solid var(--progress_border_color);
+    }
+
+    #bar_control_button:hover {
+      background-color: var(--progress_hover_color);
+    }
+
     #timer_screen {
       position: relative;
       width: 100vw;
       height: 100vh;
-      background: #141E42;
     }
 
     .timer_control {
@@ -257,12 +311,17 @@
       <input id="second" type="number" value="0" max="59" min="0" autocomplete="off" />
     </div>
     <div class="timer_control">
-      <button type="button" onfocus="a_down_timer('minute')" onmousewheel="a_down_timer('minute')">▼</button>
+      <button type="button" onclick="a_down_timer('minute')" onmousewheel="a_down_timer('minute')">▼</button>
       <button type="button" onclick="a_down_timer('second')" onmousewheel="a_down_timer('second')">▼</button>
     </div>
-    <div class="button">
+    <div class="button control">
+      <img src="music_on.svg" id="music_button" width="60px" height="60px" alt="通知音オンオフ" onclick="music_toggle()">
       <img src="play2.svg" id="start_button" width="150px" height="150px" alt="スタート" onclick="timer_start()">
       <img src="refresh.svg" id="reset_button" width="90px" height="90px" alt="リセット" onclick="reset()">
+    </div>
+    <div class="progress_control button">
+      <button type="button" id="circle_control_button" onclick="circle_control()">円グラフで表示</button>
+      <button type="button" id="bar_control_button" onclick="bar_control()">帯を表示</button>
     </div>
 
   </div>
@@ -297,6 +356,7 @@
     let second = 0;
     let pause_state = "running";
     let pause_to = "";
+    let music = "on";
 
     function set_timer_count(text) {
       if (text === 'up' || text === 'down') {
@@ -376,8 +436,10 @@
           clearInterval(timer_interval);
           timer_interval = null;
           document.querySelector("#timer_screen_text").style.color = "red";
-          audio = new Audio('alarm.mp3');
-          audio.play();
+          if (music === "on") {
+            audio = new Audio('alarm.mp3');
+            audio.play();
+          }
           return;
         }
 
@@ -406,8 +468,10 @@
           clearInterval(timer_interval);
           timer_interval = null;
           document.querySelector("#timer_screen_text").style.color = "red";
-          audio = new Audio('alarm.mp3');
-          audio.play();
+          if (music === "on") {
+            audio = new Audio('alarm.mp3');
+            audio.play();
+          }
           return;
         }
       }
@@ -418,7 +482,8 @@
     function timer_start() {
       if (timer_interval !== null || total_seconds == 0) return; // 既に動いていたら二重起動防止
       document.querySelector("#settings_screen").classList.replace("enable", "disable");
-      document.querySelector("#timer_screen").classList.replace("disable", "enable"); // 画面切り替え
+      document.querySelector("#timer_screen").classList.replace("disable", "enable");
+      document.body.style.backgroundColor = "#141E42"; // 画面切り替え
       if (timer_count === "up") {
         offset = getLength(50);
       } else {
@@ -445,12 +510,21 @@
     function reset() {
       minute = 0;
       second = 0;
-      update_settings_display();
+      update_settings_display("total");
+      document.getElementById("timer_svg").classList.remove("disable");
+      document.getElementById("circle_control_button").style.setProperty("--circle_color", "#FFDC87");
+      document.getElementById("circle_control_button").style.setProperty("--circle_hover_color", "#F5CB69");
+      document.getElementById("circle_control_button").style.setProperty("--circle_border_color", "#C5A574");
+      document.querySelector(".progress").classList.remove("disable");
+      document.getElementById("bar_control_button").style.setProperty("--progress_color", "#FFDC87");
+      document.getElementById("bar_control_button").style.setProperty("--progress_hover_color", "#F5CB69");
+      document.getElementById("bar_control_button").style.setProperty("--progress_border_color", "#C5A574");
     }
 
     function stop() {
       document.querySelector("#settings_screen").classList.replace("disable", "enable");
       document.querySelector("#timer_screen").classList.replace("enable", "disable");
+      document.body.style.backgroundColor = "#CDEBFF";
       clearInterval(timer_interval);
       timer_interval = null;
     }
@@ -479,6 +553,46 @@
         a_up_timer(second);
       }
     }, { passive: true });
+
+    function circle_control() {
+      let state = window.getComputedStyle(document.querySelector("#timer_svg")).display;
+      if (state === "none") {
+        document.getElementById("timer_svg").classList.toggle("disable");
+        document.getElementById("circle_control_button").style.setProperty("--circle_color", "#FFDC87");
+        document.getElementById("circle_control_button").style.setProperty("--circle_hover_color", "#F5CB69");
+        document.getElementById("circle_control_button").style.setProperty("--circle_border_color", "#C5A574");
+      } else {
+        document.querySelector("#timer_svg").classList.toggle("disable");
+        document.getElementById("circle_control_button").style.setProperty("--circle_color", "#91DCFF");
+        document.getElementById("circle_control_button").style.setProperty("--circle_hover_color", "#7AC8FF");
+        document.getElementById("circle_control_button").style.setProperty("--circle_border_color", "#60AADE");
+      }
+    }
+
+    function bar_control() {
+      let state = window.getComputedStyle(document.querySelector(".progress")).display;
+      if (state === "none") {
+        document.querySelector(".progress").classList.toggle("disable");
+        document.getElementById("bar_control_button").style.setProperty("--progress_color", "#FFDC87");
+        document.getElementById("bar_control_button").style.setProperty("--progress_hover_color", "#F5CB69");
+        document.getElementById("bar_control_button").style.setProperty("--progress_border_color", "#C5A574");
+      } else {
+        document.querySelector(".progress").classList.toggle("disable");
+        document.getElementById("bar_control_button").style.setProperty("--progress_color", "#91DCFF");
+        document.getElementById("bar_control_button").style.setProperty("--progress_hover_color", "#7AC8FF");
+        document.getElementById("bar_control_button").style.setProperty("--progress_border_color", "#60AADE");
+      }
+    }
+
+    function music_toggle() {
+      if (music === "on") {
+        music = "off";
+        document.getElementById("music_button").setAttribute("src", "music_off.svg");
+      } else {
+        music = "on";
+        document.getElementById("music_button").setAttribute("src", "music_on.svg");
+      }
+    }
   </script>
 </body>
 
