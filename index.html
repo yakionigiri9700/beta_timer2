@@ -138,12 +138,6 @@
       margin: 0;
     }
 
-    #reset_button {
-      position: absolute;
-      top: 50%;
-      right: 10%;
-    }
-
     .control {
       display: flex;
       align-items: center;
@@ -151,6 +145,11 @@
     }
 
     #music_button {
+      border: 5px solid #0F1946;
+      border-radius: 50%;
+    }
+
+    #reset_button {
       border: 5px solid #0F1946;
       border-radius: 50%;
     }
@@ -317,13 +316,13 @@
       <input id="second" type="number" value="0" max="59" min="0" autocomplete="off" />
     </div>
     <div class="timer_control">
-      <button type="button" class="minute_button" onclick="a_down_timer('minute')">▼</button>
-      <button type="button" class="second_button" onclick="a_down_timer('second')">▼</button>
+      <button type="button" class="minute_button2" onclick="a_down_timer('minute')">▼</button>
+      <button type="button" class="second_button2" onclick="a_down_timer('second')">▼</button>
     </div>
     <div class="button control">
       <img src="music_on.svg" id="music_button" width="60px" height="60px" alt="通知音オンオフ" onclick="music_toggle()">
       <img src="play2.svg" id="start_button" width="150px" height="150px" alt="スタート" onclick="timer_start()">
-      <img src="refresh.svg" id="reset_button" width="90px" height="90px" alt="リセット" onclick="reset()">
+      <img src="refresh.svg" id="reset_button" width="60px" height="60px" alt="リセット" onclick="reset()">
     </div>
     <div class="progress_control button">
       <button type="button" id="circle_control_button" onclick="circle_control()">円グラフで表示</button>
@@ -579,6 +578,20 @@
       }
     }, { passive: true });
     document.querySelector('.minute_button').addEventListener('wheel', (event) => {
+      if (event.deltaY > 0) {
+        a_down_timer("minute");
+      } else {
+        a_up_timer("minute");
+      }
+    }, { passive: true });
+    document.querySelector('.second_button2').addEventListener('wheel', (event) => {
+      if (event.deltaY > 0) {
+        a_down_timer("second");
+      } else {
+        a_up_timer("second");
+      }
+    }, { passive: true });
+    document.querySelector('.minute_button2').addEventListener('wheel', (event) => {
       if (event.deltaY > 0) {
         a_down_timer("minute");
       } else {
