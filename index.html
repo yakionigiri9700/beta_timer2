@@ -17,6 +17,7 @@
       position: relative;
       overflow: hidden;
       margin: 0;
+      padding: 0;
       --count_down_color: #FFDC87;
       --count_down_hover_color: #F5CB69;
       --count_down_border_color: #C5A574;
@@ -24,7 +25,7 @@
       --count_up_hover_color: #7AC8FF;
       --count_up_border_color: #60AADE;
       --circle_color: #FFDC87;
-      --circle_hover_color: #C5A574;
+      --circle_hover_color: #F5CB69;
       --circle_border_color: #C5A574;
       --progress_color: #FFDC87;
       --progress_hover_color: #F5CB69;
@@ -49,6 +50,7 @@
       font-size: 3vh;
       font-weight: bold;
       margin: 10px;
+      justify-content: center;
     }
 
     .button button:hover,
@@ -108,10 +110,17 @@
       color: #0F1946;
     }
 
+    .container-grid {
+      box-sizing: border-box;
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      justify-content: center;
+      align-items: center;
+    }
+
     .timer_text {
       color: #0F1946;
       text-align: center;
-      font-size: 12vh;
       font-weight: bold;
     }
 
@@ -121,9 +130,9 @@
       text-align: center;
       font-size: 10vh;
       font-weight: bold;
+      box-sizing: border-box;
       width: 12vh;
       height: 12vh;
-      box-sizing: border-box;
       border: 0;
       outline: 0;
     }
@@ -190,6 +199,7 @@
       position: relative;
       width: 100vw;
       height: 100vh;
+      align-content: center;
     }
 
     .timer_control {
@@ -209,16 +219,12 @@
       text-align: center;
     }
 
-    .progress {
-      flex-direction: column;
-    }
-
     .progress_background {
       width: 98vw;
       height: 6vh;
       background-color: #0C3F72;
       border-radius: 10px;
-      margin: 20px auto 0 auto;
+      margin: 20px auto 20px auto;
     }
 
     .progress_bar {
@@ -242,11 +248,8 @@
     #timer_svg {
       width: 100%;
       height: 100%;
-      vertical-align: middle;
       transform: rotate(-90deg);
-      margin: 10px auto;
-      position: absolute;
-      flex-direction: column;
+      margin: 10px 0;
     }
 
     #timer_svg circle {
@@ -295,6 +298,21 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
+
+    @media screen and (max-width: 768px) {
+      .count_button {
+        position: inherit;
+      }
+
+      .progress_control {
+        position: inherit;
+      }
+
+      #circle_control_button,
+      #bar_control_button {
+        display: inline-block;
+      }
+    }
   </style>
 </head>
 
@@ -306,28 +324,31 @@
         onclick="set_timer_count('up')">アップ</button><button id="count_down_button" class="count_button_on" type="button"
         onclick="set_timer_count('down')">ダウン</button>
     </div>
-    <div class="timer_control">
-      <button type="button" class="minute_button" onclick="a_up_timer('minute')">▲</button>
-      <button type="button" class="second_button" onclick="a_up_timer('second')">▲</button>
+    <div class="progress_control button">
+      <button type="button" id="circle_control_button" onclick="circle_control()">円グラフで表示</button><button type="button"
+        id="bar_control_button" onclick="bar_control()">帯を表示</button>
     </div>
-    <div class="timer_text">
-      <input id="minute" type="number" value="0" max="59" min="0" autocomplete="off" />
-      <span>:</span>
-      <input id="second" type="number" value="0" max="59" min="0" autocomplete="off" />
-    </div>
-    <div class="timer_control">
-      <button type="button" class="minute_button2" onclick="a_down_timer('minute')">▼</button>
-      <button type="button" class="second_button2" onclick="a_down_timer('second')">▼</button>
+    <div class="container-grid">
+      <div class="timer_control">
+        <button type="button" class="minute_button" onclick="a_up_timer('minute')">▲</button>
+        <button type="button" class="second_button" onclick="a_up_timer('second')">▲</button>
+      </div>
+      <div class="timer_text">
+        <input id="minute" type="number" value="0" max="59" min="0" autocomplete="off" />
+        <span>:</span>
+        <input id="second" type="number" value="0" max="59" min="0" autocomplete="off" />
+      </div>
+      <div class="timer_control">
+        <button type="button" class="minute_button2" onclick="a_down_timer('minute')">▼</button>
+        <button type="button" class="second_button2" onclick="a_down_timer('second')">▼</button>
+      </div>
     </div>
     <div class="button control">
       <img src="music_on.svg" id="music_button" width="60px" height="60px" alt="通知音オンオフ" onclick="music_toggle()">
       <img src="play2.svg" id="start_button" width="150px" height="150px" alt="スタート" onclick="timer_start()">
       <img src="refresh.svg" id="reset_button" width="60px" height="60px" alt="リセット" onclick="reset()">
     </div>
-    <div class="progress_control button">
-      <button type="button" id="circle_control_button" onclick="circle_control()">円グラフで表示</button>
-      <button type="button" id="bar_control_button" onclick="bar_control()">帯を表示</button>
-    </div>
+
 
   </div>
 
@@ -598,34 +619,58 @@
         a_up_timer("minute");
       }
     }, { passive: true });
+    document.getElementById("minute").addEventListener('wheel', (event) => {
+      if (event.deltaY > 0) {
+        a_down_timer("minute");
+      } else {
+        a_up_timer("minute");
+      }
+    }, { passive: true });
+    document.getElementById("second").addEventListener('wheel', (event) => {
+      if (event.deltaY > 0) {
+        a_down_timer("second");
+      } else {
+        a_up_timer("second");
+      }
+    }, { passive: true });
 
     function circle_control() {
-      let state = window.getComputedStyle(document.querySelector("#timer_svg")).display;
-      if (state === "none") {
-        document.getElementById("timer_svg").classList.toggle("disable");
-        document.getElementById("circle_control_button").style.setProperty("--circle_color", "#FFDC87");
-        document.getElementById("circle_control_button").style.setProperty("--circle_hover_color", "#F5CB69");
-        document.getElementById("circle_control_button").style.setProperty("--circle_border_color", "#C5A574");
+      const svg = document.querySelector("#timer_svg");
+      const btn = document.getElementById("circle_control_button");
+
+      svg.classList.toggle("disable");
+
+      // .disableクラスがついているかどうかで判定
+      if (svg.classList.contains("disable")) {
+        // 非表示になったときの色
+        btn.style.setProperty("--circle_color", "#91DCFF");
+        btn.style.setProperty("--circle_hover_color", "#7AC8FF");
+        btn.style.setProperty("--circle_border_color", "#60AADE");
       } else {
-        document.querySelector("#timer_svg").classList.toggle("disable");
-        document.getElementById("circle_control_button").style.setProperty("--circle_color", "#91DCFF");
-        document.getElementById("circle_control_button").style.setProperty("--circle_hover_color", "#7AC8FF");
-        document.getElementById("circle_control_button").style.setProperty("--circle_border_color", "#60AADE");
+        // 表示されているときの色
+        btn.style.setProperty("--circle_color", "#FFDC87");
+        btn.style.setProperty("--circle_hover_color", "#F5CB69");
+        btn.style.setProperty("--circle_border_color", "#C5A574");
       }
     }
 
     function bar_control() {
-      let state = window.getComputedStyle(document.querySelector(".progress")).display;
-      if (state === "none") {
-        document.querySelector(".progress").classList.toggle("disable");
-        document.getElementById("bar_control_button").style.setProperty("--progress_color", "#FFDC87");
-        document.getElementById("bar_control_button").style.setProperty("--progress_hover_color", "#F5CB69");
-        document.getElementById("bar_control_button").style.setProperty("--progress_border_color", "#C5A574");
+      const progress = document.querySelector(".progress");
+      const btn = document.getElementById("bar_control_button");
+
+      progress.classList.toggle("disable");
+
+      // .disableクラスがついているかどうかで判定
+      if (progress.classList.contains("disable")) {
+        // 非表示になったときの色
+        btn.style.setProperty("--progress_color", "#91DCFF");
+        btn.style.setProperty("--progress_hover_color", "#7AC8FF");
+        btn.style.setProperty("--progress_border_color", "#60AADE");
       } else {
-        document.querySelector(".progress").classList.toggle("disable");
-        document.getElementById("bar_control_button").style.setProperty("--progress_color", "#91DCFF");
-        document.getElementById("bar_control_button").style.setProperty("--progress_hover_color", "#7AC8FF");
-        document.getElementById("bar_control_button").style.setProperty("--progress_border_color", "#60AADE");
+        // 表示されているときの色
+        btn.style.setProperty("--progress_color", "#FFDC87");
+        btn.style.setProperty("--progress_hover_color", "#F5CB69");
+        btn.style.setProperty("--progress_border_color", "#C5A574");
       }
     }
 
