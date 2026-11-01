@@ -120,12 +120,6 @@
 
     .timer_text {
       color: #0F1946;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    .timer_text input {
-      color: #0F1946;
       background: #CDEBFF;
       text-align: center;
       font-size: 10vh;
@@ -135,15 +129,6 @@
       height: 12vh;
       border: 0;
       outline: 0;
-    }
-
-    .timer_text span {
-      font-size: 10vh;
-    }
-
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
       margin: 0;
     }
 
@@ -225,6 +210,7 @@
       background-color: #0C3F72;
       border-radius: 10px;
       margin: 20px auto 20px auto;
+      overflow: hidden;
     }
 
     .progress_bar {
@@ -232,6 +218,7 @@
       height: 100%;
       background-color: #1C95D4;
       border-radius: 10px;
+      overflow: hidden;
     }
 
     .progress_bar.animation {
@@ -334,9 +321,7 @@
         <button type="button" class="second_button" onclick="a_up_timer('second')">▲</button>
       </div>
       <div class="timer_text">
-        <input id="minute" type="number" value="0" max="59" min="0" autocomplete="off" />
-        <span>:</span>
-        <input id="second" type="number" value="0" max="59" min="0" autocomplete="off" />
+        <span id="minute">00</span><span>:</span><span id="second">00</span>
       </div>
       <div class="timer_control">
         <button type="button" class="minute_button2" onclick="a_down_timer('minute')">▼</button>
@@ -381,7 +366,6 @@
     let minute = 0;
     let second = 0;
     let pause_state = "running";
-    let pause_to = "";
     let music = "on";
 
     function set_timer_count(text) {
@@ -408,8 +392,8 @@
 
     // 画面の入力欄（Input）の数値を最新の変数と同期する関数
     function update_settings_display(total) {
-      document.getElementById("minute").value = minute;
-      document.getElementById("second").value = second;
+      document.getElementById("minute").textContent = minute;
+      document.getElementById("second").textContent = second;
       now_seconds = minute * 60 + second;
       if (total === "total") {
         total_seconds = minute * 60 + second;
@@ -424,8 +408,8 @@
 
     // 入力欄から現在の数値を読み込む関数
     function load_settings_inputs(total) {
-      minute = parseInt(document.getElementById("minute").value) || 0;
-      second = parseInt(document.getElementById("second").value) || 0;
+      minute = parseInt(document.getElementById("minute").textContent) || 0;
+      second = parseInt(document.getElementById("second").textContent) || 0;
       now_seconds = minute * 60 + second;
       if (total === "total") {
         total_seconds = now_seconds;
@@ -436,7 +420,11 @@
       load_settings_inputs("total"); // 現在の入力を取得
       switch (up_time) {
         case 'minute': minute++; break;
-        case 'second': second++; break;
+        case 'second': second++;
+          if (second === 60) {
+            second = 0;
+            minute++;
+          } break;
       }
       update_settings_display("total"); // 画面を更新
     }
@@ -445,12 +433,19 @@
       load_settings_inputs("total"); // 現在の入力を取得
       switch (down_time) {
         case 'minute': if (minute > 0) minute--; break;
-        case 'second': if (second > 0) second--; break;
+        case 'second': if (second > 0) {
+          second--;
+        } else {
+          if (minute > 0) {
+            minute--;
+          }
+        }
+          break;
       }
       update_settings_display("total"); // 画面を更新
     }
 
-    const getLength = radius => (radius * 2) * 3.14;//関数 "円の周の長さを計算する"
+    const getLength = radius => (radius * 2) * Math.PI; // 関数 "円の周の長さを計算する"
     const getStep = (length, time) => length / time;//関数 "1秒あたりの移動距離を計算する"
 
     let offset = 0;
@@ -572,23 +567,33 @@
       document.body.style.backgroundColor = "#CDEBFF";
       clearInterval(timer_interval);
       timer_interval = null;
+      audio = null; // アラームの Audio オブジェクトをリセット
     }
 
     function pause() {
       if (pause_state === "running") {
         document.getElementById("pause_button").setAttribute("src", "play.svg");
         pause_state = "paused";
-        pause_to = "pause";
         clearInterval(timer_interval);
         timer_interval = null;
+
+        // transition を一時的に無効化（即時応答のため）
+        document.getElementById("timer_circle_progress").style.transition = "none";
+        document.querySelector(".progress_bar").style.transition = "none";
+
+        // animationPlayState を適用
+        document.querySelector(".progress_bar").style.animationPlayState = pause_state;
+        document.getElementById("timer_circle_progress").style.animationPlayState = pause_state;
       } else {
         document.getElementById("pause_button").setAttribute("src", "pause.svg");
         pause_state = "running";
-        pause_to = "running";
+
+        // transition を再設定
+        document.getElementById("timer_circle_progress").style.transition = "stroke-dashoffset 1s linear";
+        document.querySelector(".progress_bar").style.transition = "width 1s linear";
+
         timer_interval = setInterval(timer, 1000);
       }
-      document.querySelector('.progress_bar').style.animationPlayState = pause_state;
-      document.getElementById('timer_circle_progress').style.animationPlayState = pause_state;
     }
 
     document.querySelector('.second_button').addEventListener('wheel', (event) => {
