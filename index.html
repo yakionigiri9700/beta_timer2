@@ -46,7 +46,7 @@
     .header {
       color: white;
       text-align: center;
-      font-weight: normal;
+      font-weight: 450;
       font-size: 3vh;
       flex-basis: 4vh;
       background-color: #3BB3EF;
@@ -127,20 +127,19 @@
     }
 
     .count_button {
-      font-size: 3vh;
-      position: absolute;
-      top: 25%;
-      right: 3%;
+      flex-grow: 1;
+      height: 17vh;
     }
 
     .container-grid {
       box-sizing: border-box;
       display: grid;
+      flex-grow: 1;
     }
 
     .timer_text {
       background: #CDEBFF;
-      font-size: 10vh;
+      font-size: 20vh;
       box-sizing: border-box;
       border: 0;
       outline: 0;
@@ -164,16 +163,19 @@
     }
 
     .progress_control {
-      position: absolute;
-      top: 25%;
-      left: 3%;
+      order: 1;
+      flex-grow: 1;
+      height: 17vh;
     }
 
     #circle_control_button,
     #bar_control_button {
       box-sizing: border-box;
       width: 17vh;
-      margin: 15px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+      margin-right: auto;
+      margin-left: auto;
       display: block;
     }
 
@@ -207,8 +209,8 @@
       background: #91DCFF;
       font-size: 10vh;
       font-weight: bold;
-      width: 12vh;
-      height: 12vh;
+      width: 22vh;
+      height: 11vh;
       border-radius: 15px;
       text-align: center;
     }
@@ -299,18 +301,15 @@
       transform: translate(-50%, -50%);
     }
 
-    @media screen and (max-width: 768px) {
-      .count_button {
-        position: inherit;
+    @media screen and (max-width: 800px) {
+      .timer_control button {
+        width: 10vh;
+        height: 10vh;
+        font-size: 8vh;
       }
 
-      .progress_control {
-        position: inherit;
-      }
-
-      #circle_control_button,
-      #bar_control_button {
-        display: inline-block;
+      .timer_text {
+        font-size: 8vh;
       }
     }
   </style>
@@ -323,7 +322,7 @@
     </div>
     <div class="main">
       <div class="count_button button">
-        <p><span id="background_count">カウント</span></p>
+        <div id="background_count">カウント</div>
         <button id="count_up_button" class="count_button_off" type="button"
           onclick="set_timer_count('up')">アップ</button><button id="count_down_button" class="count_button_on"
           type="button" onclick="set_timer_count('down')">ダウン</button>
