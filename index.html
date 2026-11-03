@@ -12,7 +12,6 @@
       user-select: none;
       min-height: 100dvh;
       position: relative;
-      overflow: hidden;
       margin: 0;
       padding: 0;
       --count_down_color: #FFDC87;
@@ -30,7 +29,7 @@
     }
 
     body {
-      background-color: #CDEBFF;
+      background-color: white;
       margin: 0;
     }
 
@@ -58,6 +57,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      background-color: #CDEBFF;
     }
 
     .footer {
@@ -303,13 +303,13 @@
 
     @media screen and (max-width: 800px) {
       .timer_control button {
-        width: 10vh;
-        height: 10vh;
-        font-size: 8vh;
+        width: 10dvh;
+        height: 10dvh;
+        font-size: 8dvh;
       }
 
       .timer_text {
-        font-size: 8vh;
+        font-size: 8dvh;
       }
     }
   </style>
