@@ -128,13 +128,15 @@
 
     .count_button {
       flex-grow: 1;
-      height: 17vh;
+      height: auto;
     }
 
     .container-grid {
       box-sizing: border-box;
-      display: grid;
       flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .timer_text {
@@ -165,7 +167,7 @@
     .progress_control {
       order: 1;
       flex-grow: 1;
-      height: 17vh;
+      height: auto;
     }
 
     #circle_control_button,
@@ -304,8 +306,8 @@
     @media screen and (max-width: 800px) {
       .timer_control button {
         width: 10dvh;
-        height: 10dvh;
-        font-size: 8dvh;
+        height: 5dvh;
+        font-size: 4dvh;
       }
 
       .timer_text {
@@ -313,11 +315,22 @@
       }
 
       .main {
-        flex-direction:column;
+        flex-direction: column;
       }
 
       .progress_control {
-        order:2;
+        order: 0;
+        flex-grow: unset;
+      }
+
+      .count_button {
+        flex-grow: unset;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container-grid {
+        flex-grow: unset;
       }
     }
   </style>
@@ -331,9 +344,11 @@
     <div class="main">
       <div class="count_button button">
         <div id="background_count">カウント</div>
-        <button id="count_up_button" class="count_button_off" type="button"
-          onclick="set_timer_count('up')">アップ</button><button id="count_down_button" class="count_button_on"
-          type="button" onclick="set_timer_count('down')">ダウン</button>
+        <div>
+          <button id="count_up_button" class="count_button_off" type="button"
+            onclick="set_timer_count('up')">アップ</button><button id="count_down_button" class="count_button_on"
+            type="button" onclick="set_timer_count('down')">ダウン</button>
+        </div>
       </div>
       <div class="progress_control button">
         <button type="button" id="circle_control_button" onclick="circle_control()">円グラフで表示</button><button
