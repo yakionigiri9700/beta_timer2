@@ -293,10 +293,12 @@
     #timer_screen_text {
       color: white;
       text-align: center;
-      font-size: 37dvw;
+      /* iPhoneでもはみ出ないように clamp() で最大幅を設定 */
+      font-size: clamp(2rem, 28vw, 30vmin);
       font-weight: bold;
       max-width: 100%;
       min-width: 0;
+      white-space: nowrap;
       position: absolute;
       top: 50%;
       left: 50%;
