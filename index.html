@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>自分で作るタイマー</title>
+  <title>タイマー</title>
   <style>
     :root {
       color: white;
@@ -40,6 +40,7 @@
       height: 100dvh;
       color: #0F1946;
       font-weight: bold;
+      overflow: hidden;
     }
 
     .header {
@@ -68,7 +69,6 @@
     button {
       background: none;
       border: 0;
-      margin: 10px;
     }
 
     .disable {
@@ -135,7 +135,7 @@
       box-sizing: border-box;
       flex-grow: 1;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       justify-content: center;
     }
 
@@ -203,7 +203,11 @@
       position: relative;
       width: 100dvw;
       height: 100dvh;
-      align-content: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
     }
 
     .timer_control button {
@@ -211,7 +215,7 @@
       background: #91DCFF;
       font-size: 10vh;
       font-weight: bold;
-      width: 22vh;
+      width: stretch;
       height: 11vh;
       border-radius: 9999px;
       text-align: center;
@@ -226,7 +230,8 @@
       height: 6dvh;
       background-color: #0C3F72;
       border-radius: 6px;
-      margin: 20px auto 20px auto;
+      margin: 0 auto;
+      margin-top: 10px;
       overflow: hidden;
     }
 
@@ -244,16 +249,15 @@
 
     .timer_circle {
       position: relative;
-      width: 90vmin;
+      width: calc(100dvh - (20px + 6dvh));
       height: 90vmin;
-      margin: 0 auto;
+      margin: 10 auto 0 auto;
     }
 
     #timer_svg {
       width: 100%;
       height: 100%;
       transform: rotate(-90deg);
-      margin: 10px 0;
     }
 
     #timer_svg circle {
@@ -325,6 +329,15 @@
         flex-grow: unset;
       }
     }
+
+    .left,
+    .center,
+    .right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
   </style>
 </head>
 
@@ -347,15 +360,17 @@
           type="button" id="bar_control_button" onclick="bar_control()">帯を表示</button>
       </div>
       <div class="container-grid">
-        <div class="timer_control">
+        <div class="left timer_control" style="margin:0">
           <button type="button" class="minute_button" onclick="a_up_timer('minute')">▲</button>
-          <button type="button" class="second_button" onclick="a_up_timer('second')">▲</button>
-        </div>
-        <div class="timer_text">
-          <span id="minute">00</span><span>:</span><span id="second">00</span>
-        </div>
-        <div class="timer_control">
+          <span id="minute" class="timer_text">00</span>
           <button type="button" class="minute_button2" onclick="a_down_timer('minute')">▼</button>
+        </div>
+        <div class="center">
+          <span class="timer_text">:</span>
+        </div>
+        <div class="right timer_control" style="margin:0">
+          <button type="button" class="second_button" onclick="a_up_timer('second')">▲</button>
+          <span id="second" class="timer_text">00</span>
           <button type="button" class="second_button2" onclick="a_down_timer('second')">▼</button>
         </div>
       </div>
@@ -365,8 +380,6 @@
       <img src="play2.svg" id="start_button" width="150px" height="150px" alt="スタート" onclick="timer_start()">
       <img src="refresh.svg" id="reset_button" width="60px" height="60px" alt="リセット" onclick="reset()">
     </div>
-
-
   </div>
 
   <div id="timer_screen" class="disable">
