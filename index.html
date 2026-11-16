@@ -26,6 +26,9 @@
       --progress_color: #FFDC87;
       --progress_hover_color: #F5CB69;
       --progress_border_color: #C5A574;
+      --circle_canvas_width: calc(100dvh - (20px + 6dvh));
+      --progress_canvas_width: 98dvw;
+      --progress_canvas_height: 6dvh;
     }
 
     body {
@@ -205,7 +208,7 @@
       height: 100dvh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-end;
       align-items: center;
       overflow: hidden;
     }
@@ -225,15 +228,40 @@
       margin: 0 auto;
     }
 
-    .progress_background {
+    .minute_button2,
+    .second_button2 {
+      margin-bottom: 10px;
+    }
+
+    .minute_button,
+    .second_button {
+      margin-top: 10px;
+    }
+
+    #progress {
+      width: var(--progress_canvas_width);
+      height: var(--progress_canvas_height);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      background-color: #0C3F72;
+    }
+
+    #progress_canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /*.progress_background {
       width: 98dvw;
       height: 6dvh;
       background-color: #0C3F72;
       border-radius: 6px;
       margin: 0 auto;
-      margin-top: 10px;
+      margin-top: 5px;
+      margin-bottom: 20px;
       overflow: hidden;
-    }
+    }*/
 
     .progress_bar {
       width: 100%;
@@ -247,38 +275,18 @@
       transition: width 1s linear;
     }
 
-    .timer_circle {
+    #timer_circle {
       position: relative;
-      width: calc(100dvh - (20px + 6dvh));
-      height: 90vmin;
-      margin: 10 auto 0 auto;
+      width: var(--circle_canvas_width);
+      height: var(--circle_canvas_width);
+      margin: 20px auto 5px auto;
+      background-color: #0C3F72;
+      border-radius: 50%;
     }
 
-    #timer_svg {
+    #circle_canvas {
       width: 100%;
       height: 100%;
-      transform: rotate(-90deg);
-    }
-
-    #timer_svg circle {
-      fill: none;
-      stroke-width: 100px;
-    }
-
-    .circle_background {
-      stroke: #0C3F72;
-    }
-
-    #timer_circle_progress {
-      stroke: #1C95D4;
-      /* 円の周の長さ */
-      stroke-dasharray: calc((50 * 2) * 3.14);
-      /* 点線を始める位置、どのぐらい消えさせるか */
-      stroke-dashoffset: 0;
-    }
-
-    #timer_circle_progress.animation {
-      transition: stroke-dashoffset 1s linear;
     }
 
     .timer_screen_control img:nth-child(1) {
@@ -343,9 +351,6 @@
 
 <body>
   <div id="settings_screen" class="enable">
-    <div class="header">
-      <span>タイマー</span>
-    </div>
     <div class="main">
       <div class="count_button button">
         <div id="background_count">カウント</div>
@@ -383,16 +388,11 @@
   </div>
 
   <div id="timer_screen" class="disable">
-    <div class="timer_circle">
-      <svg id="timer_svg" viewBox="0 0 200 200">
-        <circle class="circle_background" cx="100" cy="100" r="50"></circle>
-        <circle id="timer_circle_progress" class="circle_progress" cx="100" cy="100" r="50"></circle>
-      </svg>
+    <div id="timer_circle">
+      <canvas id="circle_canvas" width="800" height="800"></canvas>
     </div>
-    <div class="progress">
-      <div class="progress_background">
-        <div class="progress_bar"></div>
-      </div>
+    <div id="progress">
+      <canvas id="progress_canvas" width="800" height="100"></canvas>
     </div>
     <div class="timer_screen_text">
       <span id="timer_screen_text"></span>
@@ -412,6 +412,8 @@
     let second = 0;
     let pause_state = "running";
     let music = "on";
+    let canvasStartTime = null;
+    let animationId = null;
 
     function set_timer_count(text) {
       if (text === 'up' || text === 'down') {
@@ -447,8 +449,6 @@
 
     function update_timer_display() {
       document.getElementById("timer_screen_text").textContent = minute.toString().padStart(2, '0') + ":" + second.toString().padStart(2, '0');
-      document.querySelector(".progress_bar").style.width = (now_seconds / total_seconds) * 100 + "%";
-      document.querySelector("#timer_circle_progress").style.strokeDashoffset = offset;
     }
 
     // 入力欄から現在の数値を読み込む関数
@@ -490,105 +490,30 @@
       update_settings_display("total"); // 画面を更新
     }
 
-    const getLength = radius => (radius * 2) * Math.PI; // 関数 "円の周の長さを計算する"
-    const getStep = (length, time) => length / time;//関数 "1秒あたりの移動距離を計算する"
-
-    let offset = 0;
-
-    function timer() {
-      if (timer_count === "down") {
-        // ダウンカウント処理
-        if (minute === 0 && second === 0) {
-          clearInterval(timer_interval);
-          timer_interval = null;
-          document.querySelector("#timer_screen_text").style.color = "red";
-          if (music === "on") {
-            audio = new Audio('alarm.mp3');
-            audio.play();
-          }
-          document.getElementById("timer_circle_progress").style.transition = "none";
-          document.querySelector(".progress_bar").style.transition = "none";
-          return;
-        }
-
-        if (second > 0) {
-          second--;
-          offset = offset + getStep(getLength(50), total_seconds);
-        } else {
-          second = 59;
-          offset = offset + getStep(getLength(50), total_seconds);
-          if (minute > 0) {
-            minute--;
-          }
-        }
-        now_seconds = minute * 60 + second;
-      } else {
-        // アップカウント処理
-        second++;
-        offset = offset - getStep(getLength(50), total_seconds);
-        if (second >= 60) {
-          second = 0;
-          minute++;
-        }
-
-        now_seconds = minute * 60 + second;
-        if (now_seconds > total_seconds) {
-          clearInterval(timer_interval);
-          timer_interval = null;
-          document.querySelector("#timer_screen_text").style.color = "red";
-          if (music === "on") {
-            audio = new Audio('alarm.mp3');
-            audio.play();
-          }
-          document.getElementById("timer_circle_progress").style.transition = "none";
-          document.querySelector(".progress_bar").style.transition = "none";
-          return;
-        }
-      }
-      update_timer_display();
-    }
+    const audio = new Audio("alarm.mp3");
 
     // タイマー開始
     function timer_start() {
-      if (timer_interval !== null) return; // 二重起動を防止
+      if (canvasStartTime !== null) return; // 二重起動を防止
 
       // 手入力された値も含めて設定を読み込み、合計時間を確定する
       load_settings_inputs("total");
       if (total_seconds <= 0) return;
 
-      document.getElementById("timer_screen").classList.remove("animation");
-      document.getElementById("timer_circle_progress").style.removeProperty("transition");
-      document.querySelector(".progress_bar").style.removeProperty("transition");
-
       document.body.style.backgroundColor = "#141E42";
       document.querySelector("#timer_screen_text").style.color = "white";
-      up_count_reset = "true";
 
       if (timer_count === "up") {
         second = 0;
         minute = 0;
         now_seconds = 0;
-        offset = getLength(50);
-        document.querySelector(".progress_bar").style.width = "0%";
-        document.querySelector("#timer_circle_progress").style.strokeDashoffset = offset;
-      } else {
-        offset = 0;
-        document.querySelector(".progress_bar").style.width = "100%";
-        document.getElementById("timer_circle_progress").style.strokeDashoffset = 0;
       }
 
-      // transition が無効な状態で、表示文字と進捗の初期位置を揃える
       update_timer_display();
+      animationId = requestAnimationFrame(draw);
 
       document.querySelector("#settings_screen").classList.replace("enable", "disable");
       document.getElementById("timer_screen").classList.replace("disable", "enable");
-
-      requestAnimationFrame(() => {
-        document.getElementById("timer_screen").classList.add("animation");
-        document.getElementById("timer_circle_progress").style.setProperty("transition", "stroke-dashoffset 1s linear");
-        document.querySelector(".progress_bar").style.setProperty("transition", "width 1s linear");
-        timer_interval = setInterval(timer, 1000);
-      });
     }
 
     // リセット
@@ -596,11 +521,11 @@
       minute = 0;
       second = 0;
       update_settings_display("total");
-      document.getElementById("timer_svg").classList.remove("disable");
+      document.getElementById("circle_canvas").classList.remove("disable");
       document.getElementById("circle_control_button").style.setProperty("--circle_color", "#FFDC87");
       document.getElementById("circle_control_button").style.setProperty("--circle_hover_color", "#F5CB69");
       document.getElementById("circle_control_button").style.setProperty("--circle_border_color", "#C5A574");
-      document.querySelector(".progress").classList.remove("disable");
+      document.getElementById("progress_canvas").classList.remove("disable");
       document.getElementById("bar_control_button").style.setProperty("--progress_color", "#FFDC87");
       document.getElementById("bar_control_button").style.setProperty("--progress_hover_color", "#F5CB69");
       document.getElementById("bar_control_button").style.setProperty("--progress_border_color", "#C5A574");
@@ -610,8 +535,11 @@
       document.querySelector("#settings_screen").classList.replace("disable", "enable");
       document.querySelector("#timer_screen").classList.replace("enable", "disable");
       document.body.style.backgroundColor = "#CDEBFF";
-      clearInterval(timer_interval);
-      timer_interval = null;
+
+      cancelAnimationFrame(animationId);
+      animationId = null;
+      canvasStartTime = null;
+      audio.pause();
       audio = null; // アラームの Audio オブジェクトをリセット
     }
 
@@ -619,25 +547,11 @@
       if (pause_state === "running") {
         document.getElementById("pause_button").setAttribute("src", "play.svg");
         pause_state = "paused";
-        clearInterval(timer_interval);
-        timer_interval = null;
-
-        // transition を一時的に無効化（即時応答のため）
-        document.getElementById("timer_circle_progress").style.transition = "none";
-        document.querySelector(".progress_bar").style.transition = "none";
-
-        // animationPlayState を適用
-        document.querySelector(".progress_bar").style.animationPlayState = pause_state;
-        document.getElementById("timer_circle_progress").style.animationPlayState = pause_state;
       } else {
         document.getElementById("pause_button").setAttribute("src", "pause.svg");
         pause_state = "running";
 
-        // transition を再設定
-        document.getElementById("timer_circle_progress").style.transition = "stroke-dashoffset 1s linear";
-        document.querySelector(".progress_bar").style.transition = "width 1s linear";
-
-        timer_interval = setInterval(timer, 1000);
+        requestAnimationFrame(draw);
       }
     }
 
@@ -685,13 +599,13 @@
     }, { passive: true });
 
     function circle_control() {
-      const svg = document.querySelector("#timer_svg");
+      const cir = document.getElementById("timer_circle");
       const btn = document.getElementById("circle_control_button");
 
-      svg.classList.toggle("disable");
+      cir.classList.toggle("disable");
 
       // .disableクラスがついているかどうかで判定
-      if (svg.classList.contains("disable")) {
+      if (cir.classList.contains("disable")) {
         // 非表示になったときの色
         btn.style.setProperty("--circle_color", "#91DCFF");
         btn.style.setProperty("--circle_hover_color", "#7AC8FF");
@@ -705,7 +619,7 @@
     }
 
     function bar_control() {
-      const progress = document.querySelector(".progress");
+      const progress = document.getElementById("progress");
       const btn = document.getElementById("bar_control_button");
 
       progress.classList.toggle("disable");
@@ -721,6 +635,7 @@
         btn.style.setProperty("--progress_color", "#FFDC87");
         btn.style.setProperty("--progress_hover_color", "#F5CB69");
         btn.style.setProperty("--progress_border_color", "#C5A574");
+
       }
     }
 
@@ -732,6 +647,107 @@
         music = "on";
         document.getElementById("music_button").setAttribute("src", "music_on.svg");
       }
+    }
+
+    const circle_canvas = document.getElementById("circle_canvas");
+    const circle_ctx = circle_canvas.getContext('2d');
+    const progress_canvas = document.getElementById("progress_canvas");
+    const progress_ctx = progress_canvas.getContext('2d');
+
+    function draw(timestamp) {
+      // 最初の一コマ目で開始時刻を記録
+      if (!canvasStartTime) canvasStartTime = timestamp;
+
+      // 開始からの経過秒数を計算 (ミリ秒を1000で割って秒にする)
+      let elapsedTime = (timestamp - canvasStartTime) / 1000;
+
+      // 残り割合を計算 (1.0 から 0.0 へ進む)
+      // 経過時間を全体時間(total_seconds)で割った値を 1 から引く
+      let progress = 1.0 - (elapsedTime / total_seconds);
+
+      // 0以下になったら 0 で固定する
+      if (progress < 0) progress = 0;
+
+      // 画面クリア
+      circle_ctx.clearRect(0, 0, document.getElementById("circle_canvas").width, document.getElementById("circle_canvas").height);
+      progress_ctx.clearRect(0, 0, document.getElementById("progress_canvas").width, document.getElementById("progress_canvas").height);
+
+      circle_canvas.setAttribute("width", circle_canvas.getBoundingClientRect().width);
+      circle_canvas.setAttribute("height", circle_canvas.getBoundingClientRect().height);
+      progress_canvas.setAttribute("width", progress_canvas.getBoundingClientRect().width);
+      progress_canvas.setAttribute("height", progress_canvas.getBoundingClientRect().height);
+
+
+      // 扇形の描画 (progressが0より大きい時だけ描く)
+      const circle_centerX = circle_canvas.width / 2;
+      const circle_centerY = circle_canvas.height / 2;
+      const radius = circle_centerX;
+      const startAngle = -Math.PI / 2;
+
+      const progress_centerY = progress_canvas.height / 2;
+      progress_ctx.lineWidth = progress_centerY * 2;
+      progress_ctx.strokeStyle = '#1C95D4';
+
+      if (timer_count === "up") {
+        // アップ処理
+        if (now_seconds >= total_seconds) {
+          document.getElementById("timer_screen_text").style.color = "red";
+          if (music === "on") {
+            audio.play();
+          }
+          canvasStartTime = null;
+          return;
+        }
+        else {
+          let endAngle = startAngle + -(progress * Math.PI * 2);
+          circle_ctx.beginPath();
+          circle_ctx.moveTo(circle_centerX, circle_centerY);
+          circle_ctx.arc(circle_centerX, circle_centerY, radius, startAngle, endAngle, false);
+          circle_ctx.closePath();
+          circle_ctx.fillStyle = '#1C95D4';
+          circle_ctx.fill();
+
+          let endX = progress_canvas.width * (elapsedTime / total_seconds);
+          progress_ctx.beginPath();
+          progress_ctx.moveTo(0, progress_centerY);
+          progress_ctx.lineTo(endX, progress_centerY);
+          progress_ctx.stroke();
+          progress_ctx.closePath();
+
+          now_seconds = parseInt(elapsedTime);
+        }
+      } else {
+        // ダウン処理
+        if (now_seconds <= "0") {
+          document.getElementById("timer_screen_text").style.color = "red";
+          if (music === "on") {
+            audio.play();
+          }
+          canvasStartTime = null;
+          return;
+        } else {
+          let endAngle = startAngle + (progress * Math.PI * 2);
+          circle_ctx.beginPath();
+          circle_ctx.moveTo(circle_centerX, circle_centerY);
+          circle_ctx.arc(circle_centerX, circle_centerY, radius, startAngle, endAngle, false);
+          circle_ctx.closePath();
+          circle_ctx.fillStyle = "#1C95D4";
+          circle_ctx.fill();
+
+          let endX = progress_canvas.width * progress;
+          progress_ctx.beginPath();
+          progress_ctx.moveTo(endX, progress_centerY);
+          progress_ctx.lineTo(0, progress_centerY);
+          progress_ctx.stroke();
+          progress_ctx.closePath();
+
+          now_seconds = total_seconds - parseInt(elapsedTime);
+        }
+      }
+      minute = parseInt(now_seconds / 60);
+      second = parseInt(now_seconds % 60);
+      update_timer_display();
+      animationId = requestAnimationFrame(draw);
     }
   </script>
 </body>
