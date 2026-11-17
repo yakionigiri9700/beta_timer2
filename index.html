@@ -414,6 +414,8 @@
     let music = "on";
     let canvasStartTime = null;
     let animationId = null;
+    let pausedTime = 0;
+    let lastTimeStamp = 0;
 
     function set_timer_count(text) {
       if (text === 'up' || text === 'down') {
@@ -547,11 +549,16 @@
       if (pause_state === "running") {
         document.getElementById("pause_button").setAttribute("src", "play.svg");
         pause_state = "paused";
+        cancelAnimationFrame(animationId);
+        animationId = null;
+        if (canvasStartTime !== null) {
+          pausedTime += (lastTimeStamp - canvasStartTime);
+          canvasStartTime = null;
+        }
       } else {
         document.getElementById("pause_button").setAttribute("src", "pause.svg");
         pause_state = "running";
-
-        requestAnimationFrame(draw);
+        animationId = requestAnimationFrame(draw);
       }
     }
 
@@ -655,8 +662,11 @@
     const progress_ctx = progress_canvas.getContext('2d');
 
     function draw(timestamp) {
+      lastTimeStamp = timestamp;
       // 最初の一コマ目で開始時刻を記録
-      if (!canvasStartTime) canvasStartTime = timestamp;
+      if (!canvasStartTime) {
+        canvasStartTime = timestamp - pausedTime;
+      }
 
       // 開始からの経過秒数を計算 (ミリ秒を1000で割って秒にする)
       let elapsedTime = (timestamp - canvasStartTime) / 1000;
@@ -664,7 +674,6 @@
       // 残り割合を計算 (1.0 から 0.0 へ進む)
       // 経過時間を全体時間(total_seconds)で割った値を 1 から引く
       let progress = 1.0 - (elapsedTime / total_seconds);
-
       // 0以下になったら 0 で固定する
       if (progress < 0) progress = 0;
 
@@ -692,10 +701,9 @@
         // アップ処理
         if (now_seconds >= total_seconds) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (music === "on") {
-            audio.play();
-          }
+          if (music === "on") audio.play();
           canvasStartTime = null;
+          pausedTime = 0;
           return;
         }
         else {
@@ -718,12 +726,11 @@
         }
       } else {
         // ダウン処理
-        if (now_seconds <= "0") {
+        if (now_seconds <= 0) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (music === "on") {
-            audio.play();
-          }
+          if (music === "on") audio.play();
           canvasStartTime = null;
+          pausedTime = 0;
           return;
         } else {
           let endAngle = startAngle + (progress * Math.PI * 2);
