@@ -242,7 +242,6 @@
       width: var(--progress_canvas_width);
       height: var(--progress_canvas_height);
       border-radius: 6px;
-      overflow: hidden;
       margin-bottom: 10px;
       background-color: #0C3F72;
     }
@@ -250,6 +249,7 @@
     #progress_canvas {
       width: 100%;
       height: 100%;
+      border-radius: 6px;
     }
 
     /*.progress_background {
@@ -261,7 +261,7 @@
       margin-top: 5px;
       margin-bottom: 20px;
       overflow: hidden;
-    }*/
+    }
 
     .progress_bar {
       width: 100%;
@@ -273,7 +273,7 @@
 
     .progress_bar.animation {
       transition: width 1s linear;
-    }
+    }*/
 
     #timer_circle {
       position: relative;
@@ -414,7 +414,7 @@
     let music = "on";
     let canvasStartTime = null;
     let animationId = null;
-    let pausedTime = 0;
+    let pausedElapsedTime = 0;
     let lastTimeStamp = 0;
 
     function set_timer_count(text) {
@@ -492,7 +492,7 @@
       update_settings_display("total"); // 画面を更新
     }
 
-    const audio = new Audio("alarm.mp3");
+    audio = new Audio("alarm.mp3");
 
     // タイマー開始
     function timer_start() {
@@ -537,10 +537,13 @@
       document.querySelector("#settings_screen").classList.replace("disable", "enable");
       document.querySelector("#timer_screen").classList.replace("enable", "disable");
       document.body.style.backgroundColor = "#CDEBFF";
+      document.getElementById("pause_button").setAttribute("src", "pause.svg");
+      pause_state = "running";
 
       cancelAnimationFrame(animationId);
       animationId = null;
       canvasStartTime = null;
+      pausedElapsedTime = 0;
       audio.pause();
       audio = null; // アラームの Audio オブジェクトをリセット
     }
@@ -551,13 +554,11 @@
         pause_state = "paused";
         cancelAnimationFrame(animationId);
         animationId = null;
-        if (canvasStartTime !== null) {
-          pausedTime += (lastTimeStamp - canvasStartTime);
-          canvasStartTime = null;
-        }
+        if (canvasStartTime !== null) pausedElapsedTime = (lastTimeStamp - canvasStartTime) / 1000;
       } else {
         document.getElementById("pause_button").setAttribute("src", "pause.svg");
         pause_state = "running";
+        canvasStartTime = null;
         animationId = requestAnimationFrame(draw);
       }
     }
@@ -665,7 +666,7 @@
       lastTimeStamp = timestamp;
       // 最初の一コマ目で開始時刻を記録
       if (!canvasStartTime) {
-        canvasStartTime = timestamp - pausedTime;
+        canvasStartTime = timestamp - (pausedElapsedTime * 1000);
       }
 
       // 開始からの経過秒数を計算 (ミリ秒を1000で割って秒にする)
@@ -701,9 +702,9 @@
         // アップ処理
         if (now_seconds >= total_seconds) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (music === "on") audio.play();
+          if (music === "on") { audio.play() };
           canvasStartTime = null;
-          pausedTime = 0;
+          pausedElapsedTime = 0;
           return;
         }
         else {
@@ -730,7 +731,7 @@
           document.getElementById("timer_screen_text").style.color = "red";
           if (music === "on") audio.play();
           canvasStartTime = null;
-          pausedTime = 0;
+          pausedElapsedTime = 0;
           return;
         } else {
           let endAngle = startAngle + (progress * Math.PI * 2);
