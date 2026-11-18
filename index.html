@@ -26,7 +26,7 @@
       --progress_color: #FFDC87;
       --progress_hover_color: #F5CB69;
       --progress_border_color: #C5A574;
-      --circle_canvas_width: calc(100dvh - (35px + 6dvh));
+      --circle_canvas_width: min(calc(100dvh - (35px + 6dvh)), 96dvw);
       --progress_canvas_width: 98dvw;
       --progress_canvas_height: 6dvh;
     }
@@ -46,7 +46,7 @@
       overflow: hidden;
     }
 
-    .header {
+    /*.header {
       color: white;
       text-align: center;
       font-weight: 450;
@@ -54,7 +54,7 @@
       flex-basis: 4vh;
       background-color: #3BB3EF;
       border-bottom: 0.3vh solid #007df1;
-    }
+    }*/
 
     .main {
       flex-grow: 1;
@@ -208,9 +208,13 @@
       height: 100dvh;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      justify-content: center;
       align-items: center;
       overflow: hidden;
+    }
+
+    .flex-end {
+      justify-content: flex-end !important;
     }
 
     .timer_control button {
@@ -242,7 +246,7 @@
       width: var(--progress_canvas_width);
       height: var(--progress_canvas_height);
       border-radius: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       background-color: #0C3F72;
     }
 
@@ -279,7 +283,7 @@
       position: relative;
       width: var(--circle_canvas_width);
       height: var(--circle_canvas_width);
-      margin: 20px auto 5px auto;
+      margin: 20px auto 10px auto;
       background-color: #0C3F72;
       border-radius: 50%;
     }
@@ -317,7 +321,6 @@
     }
 
     @media screen and (max-width: 820px) {
-
       .main {
         flex-direction: column;
       }
@@ -618,11 +621,13 @@
         btn.style.setProperty("--circle_color", "#91DCFF");
         btn.style.setProperty("--circle_hover_color", "#7AC8FF");
         btn.style.setProperty("--circle_border_color", "#60AADE");
+        document.getElementById("timer_screen").classList.add("flex-end");
       } else {
         // 表示されているときの色
         btn.style.setProperty("--circle_color", "#FFDC87");
         btn.style.setProperty("--circle_hover_color", "#F5CB69");
         btn.style.setProperty("--circle_border_color", "#C5A574");
+        document.getElementById("timer_screen").classList.remove("flex-end");
       }
     }
 
