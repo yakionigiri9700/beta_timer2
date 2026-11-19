@@ -495,7 +495,7 @@
       update_settings_display("total"); // 画面を更新
     }
 
-    audio = new Audio("alarm.mp3");
+    let audio = new Audio("alarm.mp3");
 
     // タイマー開始
     function timer_start() {
@@ -526,14 +526,9 @@
       minute = 0;
       second = 0;
       update_settings_display("total");
-      document.getElementById("circle_canvas").classList.remove("disable");
-      document.getElementById("circle_control_button").style.setProperty("--circle_color", "#FFDC87");
-      document.getElementById("circle_control_button").style.setProperty("--circle_hover_color", "#F5CB69");
-      document.getElementById("circle_control_button").style.setProperty("--circle_border_color", "#C5A574");
-      document.getElementById("progress_canvas").classList.remove("disable");
-      document.getElementById("bar_control_button").style.setProperty("--progress_color", "#FFDC87");
-      document.getElementById("bar_control_button").style.setProperty("--progress_hover_color", "#F5CB69");
-      document.getElementById("bar_control_button").style.setProperty("--progress_border_color", "#C5A574");
+      if (document.getElementById("timer_circle").classList.contains("disable")) circle_control();
+      if (document.getElementById("progress").classList.contains("disable")) bar_control();
+      if (music === "off") music_toggle();
     }
 
     function stop() {
@@ -548,7 +543,7 @@
       canvasStartTime = null;
       pausedElapsedTime = 0;
       audio.pause();
-      audio = null; // アラームの Audio オブジェクトをリセット
+      audio.currentTime = 0;
     }
 
     function pause() {
@@ -707,7 +702,7 @@
         // アップ処理
         if (now_seconds >= total_seconds) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (music === "on") { audio.play() };
+          if (music === "on") audio.play();
           canvasStartTime = null;
           pausedElapsedTime = 0;
           return;
