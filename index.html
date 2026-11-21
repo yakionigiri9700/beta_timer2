@@ -708,7 +708,7 @@
         // アップ処理
         if (now_seconds >= total_seconds) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (!canvasStartTime) {
+          if (canvasStartTime) {
             if (music === "on") audio.play();
             canvasStartTime = null;
             pausedElapsedTime = 0;
@@ -737,7 +737,7 @@
         // ダウン処理
         if (now_seconds <= 0) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (!canvasStartTime) {
+          if (canvasStartTime) {
             if (music === "on") audio.play();
             canvasStartTime = null;
             pausedElapsedTime = 0;
