@@ -708,9 +708,11 @@
         // アップ処理
         if (now_seconds >= total_seconds) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (music === "on") audio.play();
-          canvasStartTime = null;
-          pausedElapsedTime = 0;
+          if (!canvasStartTime) {
+            if (music === "on") audio.play();
+            canvasStartTime = null;
+            pausedElapsedTime = 0;
+          }
           return;
         }
         else {
@@ -735,9 +737,11 @@
         // ダウン処理
         if (now_seconds <= 0) {
           document.getElementById("timer_screen_text").style.color = "red";
-          if (music === "on") audio.play();
-          canvasStartTime = null;
-          pausedElapsedTime = 0;
+          if (!canvasStartTime) {
+            if (music === "on") audio.play();
+            canvasStartTime = null;
+            pausedElapsedTime = 0;
+          }
           return;
         } else {
           let endAngle = startAngle + (progress * Math.PI * 2);
