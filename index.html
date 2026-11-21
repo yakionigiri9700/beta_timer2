@@ -491,7 +491,10 @@
         case 'second': if (second > 0) {
           second--;
         } else {
-          if (minute > 0) minute--;
+          if (minute > 0) {
+            minute--;
+            second = 59;
+          }
         }
           break;
       }
