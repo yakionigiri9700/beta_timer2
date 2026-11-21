@@ -482,13 +482,16 @@
     function a_down_timer(down_time) {
       load_settings_inputs("total"); // 現在の入力を取得
       switch (down_time) {
-        case 'minute': if (minute > 0) minute--; break;
+        case 'minute': if (minute > 0) { 
+          minute--;
+        } else {
+          if (second > 0) second--;
+        }
+          break;
         case 'second': if (second > 0) {
           second--;
         } else {
-          if (minute > 0) {
-            minute--;
-          }
+          if (minute > 0) minute--;
         }
           break;
       }
