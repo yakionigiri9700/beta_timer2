@@ -840,9 +840,25 @@
       animationId = requestAnimationFrame(draw);
     }
 
+        const dpr = window.devicePixelRatio || 1;
 
-    // 初期化時と画面サイズ変更時に呼ぶ（draw() 毎フレームでは呼ばない）
+    function resizeCanvases() {
+      // 円形Canvas
+      const circleRect = circle_canvas.getBoundingClientRect();
+      circle_canvas.width = Math.round(circleRect.width * dpr);
+      circle_canvas.height = Math.round(circleRect.height * dpr);
+      circle_ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // 帯Canvas
+      const progressRect = progress_canvas.getBoundingClientRect();
+      progress_canvas.width = Math.round(progressRect.width * dpr);
+      progress_canvas.height = Math.round(progressRect.height * dpr);
+      progress_ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
     window.addEventListener("resize", resizeCanvases);
+
+    // 初期化時と画面サイズ変更時に呼ぶ（draw() 毎フレームでは呼ば
   </script>
 </body>
 
