@@ -625,7 +625,7 @@
     // タイマー開始
     function timer_start() {
       if (canvasStartTime !== null) return; // 二重起動を防止
-      resizeCanvases();
+      
       // 手入力された値も含めて設定を読み込み、合計時間を確定する
       load_settings_inputs("total");
       if (total_seconds <= 0) return;
@@ -643,6 +643,7 @@
 
       document.querySelector("#settings_screen").classList.replace("enable", "disable");
       document.getElementById("timer_screen").classList.replace("disable", "enable");
+      resizeCanvases();
     }
 
     // リセット
@@ -752,47 +753,43 @@
     const progress_canvas = document.getElementById("progress_canvas");
     const progress_ctx = progress_canvas.getContext('2d');
 
-    function draw(timestamp) {
+        function draw(timestamp) {
       lastTimeStamp = timestamp;
-      // 最初の一コマ目で開始時刻を記録
       if (!canvasStartTime) {
         canvasStartTime = timestamp - (pausedElapsedTime * 1000);
       }
 
-      // 開始からの経過秒数を計算 (ミリ秒を1000で割って秒にする)
       let elapsedTime = (timestamp - canvasStartTime) / 1000;
-
-      // 残り割合を計算 (1.0 から 0.0 へ進む)
-      // 経過時間を全体時間(total_seconds)で割った値を 1 から引く
       let progress = 1.0 - (elapsedTime / total_seconds);
-      // 0以下になったら 0 で固定する
       if (progress < 0) progress = 0;
 
-      // 画面クリア
-      circle_ctx.clearRect(0, 0, document.getElementById("circle_canvas").width, document.getElementById("circle_canvas").height);
-      progress_ctx.clearRect(0, 0, document.getElementById("progress_canvas").width, document.getElementById("progress_canvas").height);
+      // 論理サイズ（CSSピクセル）を取得
+      const circleWidth = circle_canvas.clientWidth;
+      const circleHeight = circle_canvas.clientHeight;
+      const progressWidth = progress_canvas.clientWidth;
+      const progressHeight = progress_canvas.clientHeight;
 
+      // 画面クリア（setTransformが効いているので論理サイズで指定）
+      circle_ctx.clearRect(0, 0, circleWidth, circleHeight);
+      progress_ctx.clearRect(0, 0, progressWidth, progressHeight);
 
-      // 扇形の描画 (progressが0より大きい時だけ描く)
-      const circle_centerX = circle_canvas.width / 2;
-      const circle_centerY = circle_canvas.height / 2;
-      const radius = circle_centerX;
+      const circle_centerX = circleWidth / 2;
+      const circle_centerY = circleHeight / 2;
+      const radius = Math.min(circle_centerX, circle_centerY);
       const startAngle = -Math.PI / 2;
 
-      const progress_centerY = progress_canvas.height / 2;
-      progress_ctx.lineWidth = progress_centerY * 2;
+      const progress_centerY = progressHeight / 2;
+      progress_ctx.lineWidth = progressHeight;
       progress_ctx.strokeStyle = '#2A6A47';
 
       if (timer_count === "up") {
-        // アップ処理
         if (now_seconds >= total_seconds) {
           document.getElementById("timer_screen_text").style.color = "red";
           if (music === "on") audio.play();
           canvasStartTime = null;
           pausedElapsedTime = 0;
           return;
-        }
-        else {
+        } else {
           let endAngle = startAngle + -(progress * Math.PI * 2);
           circle_ctx.beginPath();
           circle_ctx.moveTo(circle_centerX, circle_centerY);
@@ -801,7 +798,7 @@
           circle_ctx.fillStyle = '#2A6A47';
           circle_ctx.fill();
 
-          let endX = progress_canvas.width * (elapsedTime / total_seconds);
+          let endX = progressWidth * (elapsedTime / total_seconds);
           progress_ctx.beginPath();
           progress_ctx.moveTo(0, progress_centerY);
           progress_ctx.lineTo(endX, progress_centerY);
@@ -811,7 +808,6 @@
           now_seconds = parseInt(elapsedTime);
         }
       } else {
-        // ダウン処理
         if (now_seconds <= 0) {
           document.getElementById("timer_screen_text").style.color = "red";
           if (music === "on") audio.play();
@@ -827,7 +823,7 @@
           circle_ctx.fillStyle = '#2A6A47';
           circle_ctx.fill();
 
-          let endX = progress_canvas.width * progress;
+          let endX = progressWidth * progress;
           progress_ctx.beginPath();
           progress_ctx.moveTo(endX, progress_centerY);
           progress_ctx.lineTo(0, progress_centerY);
@@ -837,27 +833,13 @@
           now_seconds = total_seconds - parseInt(elapsedTime);
         }
       }
+
       minute = parseInt(now_seconds / 60);
       second = parseInt(now_seconds % 60);
       update_timer_display();
       animationId = requestAnimationFrame(draw);
     }
 
-    const dpr = window.devicePixelRatio || 1;
-
-    function resizeCanvases() {
-      // 円形Canvas
-      const circleRect = circle_canvas.getBoundingClientRect();
-      circle_canvas.width = Math.round(circleRect.width * dpr);
-      circle_canvas.height = Math.round(circleRect.height * dpr);
-      circle_ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // 帯Canvas
-      const progressRect = progress_canvas.getBoundingClientRect();
-      progress_canvas.width = Math.round(progressRect.width * dpr);
-      progress_canvas.height = Math.round(progressRect.height * dpr);
-      progress_ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
 
     // 初期化時と画面サイズ変更時に呼ぶ（draw() 毎フレームでは呼ばない）
     window.addEventListener("resize", resizeCanvases);
