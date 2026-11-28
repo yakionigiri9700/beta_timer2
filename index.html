@@ -7,8 +7,9 @@
   <title>タイマー</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
 
   <script type="importmap">
     {
@@ -771,11 +772,6 @@
       circle_ctx.clearRect(0, 0, document.getElementById("circle_canvas").width, document.getElementById("circle_canvas").height);
       progress_ctx.clearRect(0, 0, document.getElementById("progress_canvas").width, document.getElementById("progress_canvas").height);
 
-      circle_canvas.setAttribute("width", circle_canvas.getBoundingClientRect().width);
-      circle_canvas.setAttribute("height", circle_canvas.getBoundingClientRect().height);
-      progress_canvas.setAttribute("width", progress_canvas.getBoundingClientRect().width);
-      progress_canvas.setAttribute("height", progress_canvas.getBoundingClientRect().height);
-
 
       // 扇形の描画 (progressが0より大きい時だけ描く)
       const circle_centerX = circle_canvas.width / 2;
@@ -846,6 +842,26 @@
       update_timer_display();
       animationId = requestAnimationFrame(draw);
     }
+
+    const dpr = window.devicePixelRatio || 1;
+
+    function resizeCanvases() {
+      // 円形Canvas
+      const circleRect = circle_canvas.getBoundingClientRect();
+      circle_canvas.width = Math.round(circleRect.width * dpr);
+      circle_canvas.height = Math.round(circleRect.height * dpr);
+      circle_ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // 帯Canvas
+      const progressRect = progress_canvas.getBoundingClientRect();
+      progress_canvas.width = Math.round(progressRect.width * dpr);
+      progress_canvas.height = Math.round(progressRect.height * dpr);
+      progress_ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // 初期化時と画面サイズ変更時に呼ぶ（draw() 毎フレームでは呼ばない）
+    resizeCanvases();
+    window.addEventListener("resize", resizeCanvases);
   </script>
 </body>
 
