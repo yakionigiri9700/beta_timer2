@@ -625,7 +625,7 @@
     // タイマー開始
     function timer_start() {
       if (canvasStartTime !== null) return; // 二重起動を防止
-
+      resizeCanvases();
       // 手入力された値も含めて設定を読み込み、合計時間を確定する
       load_settings_inputs("total");
       if (total_seconds <= 0) return;
@@ -860,7 +860,6 @@
     }
 
     // 初期化時と画面サイズ変更時に呼ぶ（draw() 毎フレームでは呼ばない）
-    resizeCanvases();
     window.addEventListener("resize", resizeCanvases);
   </script>
 </body>
