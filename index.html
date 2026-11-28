@@ -657,8 +657,7 @@
     function stop() {
       document.querySelector("#settings_screen").classList.replace("disable", "enable");
       document.querySelector("#timer_screen").classList.replace("enable", "disable");
-      document.body.style.backgroundColor = "#CDEBFF";
-      document.getElementById("pause_button").setAttribute("src", "pause.svg");
+      document.getElementById("pause_icon").textContent = "pause";
       pause_state = "running";
 
       cancelAnimationFrame(animationId);
