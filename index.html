@@ -5,9 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>タイマー</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 
   <script type="importmap">
     {
@@ -24,8 +22,11 @@
 
   <style>
     :root {
-      color: white;
+      color: var(--md-sys-color-primary);
       font-family: "Roboto", sans-serif;
+      font-optical-sizing: auto;
+      font-weight: 600;
+      font-style: normal;
       user-select: none;
       min-height: 100dvh;
       position: relative;
@@ -46,23 +47,46 @@
       --circle_canvas_width: min(calc(100dvh - (35px + 6dvh)), calc(100dvw - 20px));
       --progress_canvas_width: calc(100dvw - 20px);
       --progress_canvas_height: 6dvh;
-      --md-filled-tonal-button-container-color: #91DCFF;
-      --md-filled-tonal-button-label-text-color: #0F1946;
-      --md-filled-button-container-color: #91DCFF;
-      --md-filled-button-label-text-color: #0F1946;
+
+      --md-sys-color-primary: #2a6a47;
+      --md-sys-color-on-primary: #ffffff;
+      --md-sys-color-secondary: #4e6354;
+      --md-sys-color-on-secondary: #ffffff;
+      --md-sys-tertiary: #3b6470;
+      --md-sys-color-on-tertiary: #ffffff;
+
+      --md-sys-color-primary-container: #aff2c4;
+      --md-sys-color-on-primary-container: #0b5130;
+      --md-sys-color-secondary-container: #d1e8d5;
+      --md-sys-color-on-secondary-container: #374B3D;
+      --md-sys-color-tertiary-container: #bfe9f8;
+      --md-sys-color-on-tertiary-container: #224c58;
+
+      --md-sys-color-surface-dim: #d6dbd5;
+      --md-sys-color-surface: #f6fbf4;
+      --md-sys-color-surface-bright: #f6fbf4;
+      --md-sys-color-surface-container-lowest: #ffffff;
+      --md-sys-color-surface-container-low: #f0f5ee;
+      --md-sys-color-surface-container: #eaefe8;
+      --md-sys-color-surface-container-high: #e5eae3;
+      --md-sys-color-surface-container-highest: #dfe4dd;
+      --md-sys-color-on-surface: #181d19;
+      --md-sys-color-surface-variant: #414942;
+      --md-sys-color-outline: #717972;
+      --md-sys-color-outline-variant: #c0c9c0;
     }
 
     body {
-      background-color: white;
+      background-color: var(--md-sys-color-surface);
       margin: 0;
     }
 
     #settings_screen {
       display: flex;
+      justify-content: center;
       flex-direction: column;
       width: 100dvw;
       height: 100dvh;
-      color: #0F1946;
       font-weight: bold;
       overflow: hidden;
     }
@@ -78,17 +102,9 @@
     }*/
 
     .main {
-      flex-grow: 1;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: #CDEBFF;
-    }
-
-    .footer {
-      flex-basis: 7vh;
-      background: white;
-      flex-shrink: 0;
     }
 
     button {
@@ -117,10 +133,8 @@
     .timer_control button {
       font-size: clamp(12px, 0.5rem + 1.5dvw, 22px);
       font-weight: bold;
-      background: #91DCFF;
       color: #0F1946;
       border-radius: 9999px;
-      border-color: #5BA7DD;
       padding: 5px;
       width: clamp(60px, 3rem + 5dvw, 120px);
       height: clamp(40px, 2rem + 2dvw, 80px);
@@ -141,7 +155,6 @@
 
     #count_down_button {
       border-radius: 8px 20px 20px 8px;
-      --md-filled-tonal-button-container-color: #FFDC87;
     }
 
     /*#count_up_button:hover {
@@ -174,7 +187,7 @@
     }
 
     .timer_text {
-      background: #CDEBFF;
+      background: transparent;
       font-size: clamp(20px, 3rem + 10dvw, 200px);
       box-sizing: border-box;
       border: 0;
@@ -186,22 +199,6 @@
       display: flex;
       align-items: center;
       flex-direction: row;
-    }
-
-    #music_button {
-      border: 5px solid #0F1946;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    #reset_button {
-      border: 5px solid #0F1946;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    #start_button {
-      cursor: pointer;
     }
 
     .progress_control {
@@ -228,7 +225,6 @@
       font-weight: bold;
       font-size: 16px;*/
       width: fit-content;
-      --md-filled-tonal-button-container-color: #FFDC87;
     }
 
     #circle_control_button:hover {
@@ -255,8 +251,6 @@
     }
 
     .timer_control button {
-      color: #0F1946;
-      background: #91DCFF;
       font-size: 10vh;
       font-weight: bold;
       width: stretch;
@@ -288,6 +282,15 @@
       padding: 5px;
       gap: 3px;
       width: fit-content;
+      margin: 0 auto;
+      transition: width 1s linear;
+    }
+
+    #Fm,
+    #Om,
+    #Fs,
+    #Os {
+      transition: 1s;
     }
 
     .minute_button2,
@@ -300,12 +303,17 @@
       margin-top: 10px;
     }
 
+    .menu {
+      padding: 5px;
+      margin: 0 auto;
+    }
+
     #progress {
       width: var(--progress_canvas_width);
       height: var(--progress_canvas_height);
       border-radius: 6px;
       margin: 0 auto 20px auto;
-      background-color: #0C3F72;
+      background-color: var(--md-sys-color-secondary-container);
     }
 
     #progress_canvas {
@@ -342,7 +350,7 @@
       width: var(--circle_canvas_width);
       height: var(--circle_canvas_width);
       margin: 20px auto 10px auto;
-      background-color: #0C3F72;
+      background-color: var(--md-sys-color-secondary-container);
       border-radius: 50%;
     }
 
@@ -351,19 +359,17 @@
       height: 100%;
     }
 
-    .timer_screen_control img:nth-child(1) {
+    #pause_button {
       position: absolute;
       right: 1%;
       top: 1%;
-      margin-right: 60px;
-      cursor: pointer;
+      margin-right: 50px;
     }
 
-    .timer_screen_control img:nth-child(2) {
+    #stop_button {
       position: absolute;
       right: 1%;
       top: 1%;
-      cursor: pointer;
     }
 
     #timer_screen_text {
@@ -433,24 +439,25 @@
             <span id="second" class="timer_text">00</span>
           </div>
         </div>
-        <div class="up_timer_control">
-          <md-filled-button onclick="up_timer('minute', 5)" class="button_left">+5分</md-filled-button>
-          <md-filled-button onclick="up_timer('minute', 1)" class="button_center">+1分</md-filled-button>
-          <md-filled-button onclick="up_timer('second', 10)" class="button_center">+10秒</md-filled-button>
-          <md-filled-button onclick="up_timer('second', 1)" class="button_right">+1秒</md-filled-button>
-        </div>
-        <div class="down_timer_control">
-          <md-filled-button onclick="down_timer('minute', 5)" class="button_left">-5分</md-filled-button>
-          <md-filled-button onclick="down_timer('minute', 1)" class="button_center">-1分</md-filled-button>
-          <md-filled-button onclick="down_timer('second', 10)" class="button_center">-10秒</md-filled-button>
-          <md-filled-button onclick="down_timer('second', 1)" class="button_right">-1秒</md-filled-button>
+        <md-switch icons id="toggle"></md-switch>
+        <div id="2" class="up_timer_control">
+          <md-filled-button id="Fm" class="button_left">+5分</md-filled-button>
+          <md-filled-button id="Om" class="button_center">+1分</md-filled-button>
+          <md-filled-button id="Fs" class="button_center">+5秒</md-filled-button>
+          <md-filled-button id="Os" class="button_right">+1秒</md-filled-button>
         </div>
       </div>
     </div>
-    <div class="button control footer">
-      <img src="music_on.svg" id="music_button" width="60px" height="60px" alt="通知音オンオフ" onclick="music_toggle()">
-      <img src="play2.svg" id="start_button" width="150px" height="150px" alt="スタート" onclick="timer_start()">
-      <img src="refresh.svg" id="reset_button" width="60px" height="60px" alt="リセット" onclick="reset()">
+    <div class="menu">
+      <md-filled-tonal-icon-button id="music_button" onclick="music_toggle()">
+        <span class="material-symbols-rounded" id="music_icon">music_note</span>
+      </md-filled-tonal-icon-button>
+      <md-filled-icon-button id="start_button" onclick="timer_start()">
+        <span class="material-symbols-rounded" id="start_icon">play_arrow</span>
+      </md-filled-icon-button>
+      <md-filled-tonal-icon-button id="reset_button" onclick="reset">
+        <span class="material-symbols-rounded" id="reset_icon">refresh</span>
+      </md-filled-tonal-icon-button>
     </div>
   </div>
 
@@ -465,8 +472,12 @@
       <span id="timer_screen_text"></span>
     </div>
     <div class="timer_screen_control">
-      <img src="pause.svg" id="pause_button" width="48px" height="48px" alt="一時停止" onclick="pause()">
-      <img src="stop.svg" width="48px" height="48px" alt="停止" onclick="stop()">
+      <md-filled-tonal-icon-button id="pause_button" onclick="pause()">
+        <span class="material-symbols-rounded" id="pause_icon">pause</span>
+      </md-filled-tonal-icon-button>
+      <md-filled-icon-button id="stop_button" onclick="stop()">
+        <span class="material-symbols-rounded" id="stop_icon">stop</span>
+      </md-filled-icon-button>
     </div>
   </div>
 
@@ -482,6 +493,54 @@
     let animationId = null;
     let pausedElapsedTime = 0;
     let lastTimeStamp = 0;
+    const button = document.getElementById("toggle");
+
+    document.getElementById("toggle").addEventListener("change", () => {
+      const fiveMinute = document.getElementById("Fm");
+      const oneMinute = document.getElementById("Om");
+      const fiveSecond = document.getElementById("Fs");
+      const oneSecond = document.getElementById("Os");
+      if (button.selected) {
+        fiveMinute.textContent = "-5分";
+        oneMinute.textContent = "-1分";
+        fiveSecond.textContent = "-5秒";
+        oneSecond.textContent = "-1秒";
+      } else {
+        fiveMinute.textContent = "+5分";
+        oneMinute.textContent = "+1分";
+        fiveSecond.textContent = "+5秒";
+        oneSecond.textContent = "+1秒";
+      }
+    });
+
+    document.getElementById("Fm").addEventListener("click", () => {
+      if (button.selected) {
+        down_timer("minute", 5);
+      } else {
+        up_timer("minute", 5);
+      }
+    });
+    document.getElementById("Om").addEventListener("click", () => {
+      if (button.selected) {
+        down_timer("minute", 1);
+      } else {
+        up_timer("minute", 1);
+      }
+    });
+    document.getElementById("Fs").addEventListener("click", () => {
+      if (button.selected) {
+        down_timer("second", 5);
+      } else {
+        up_timer("second", 5);
+      }
+    });
+    document.getElementById("Os").addEventListener("click", () => {
+      if (button.selected) {
+        down_timer("second", 1);
+      } else {
+        up_timer("second", 1);
+      }
+    });
 
     function set_timer_count(text) {
       if (text === 'up' || text === 'down') {
@@ -567,7 +626,6 @@
       load_settings_inputs("total");
       if (total_seconds <= 0) return;
 
-      document.body.style.backgroundColor = "#141E42";
       document.querySelector("#timer_screen_text").style.color = "white";
 
       if (timer_count === "up") {
@@ -611,13 +669,13 @@
     function pause() {
       if (canvasStartTime) {
         if (pause_state === "running") {
-          document.getElementById("pause_button").setAttribute("src", "play.svg");
+          document.getElementById("pause_icon").textContent = "play_arrow";
           pause_state = "paused";
           cancelAnimationFrame(animationId);
           animationId = null;
           if (canvasStartTime !== null) pausedElapsedTime = (lastTimeStamp - canvasStartTime) / 1000;
         } else {
-          document.getElementById("pause_button").setAttribute("src", "pause.svg");
+          document.getElementById("pause_icon").textContent = "pause";
           pause_state = "running";
           canvasStartTime = null;
           animationId = requestAnimationFrame(draw);
@@ -679,10 +737,10 @@
     function music_toggle() {
       if (music === "on") {
         music = "off";
-        document.getElementById("music_button").setAttribute("src", "music_off.svg");
+        document.getElementById("music_icon").textContent = "music_off";
       } else {
         music = "on";
-        document.getElementById("music_button").setAttribute("src", "music_on.svg");
+        document.getElementById("music_icon").textContent = "music_note";
       }
     }
 
@@ -725,7 +783,7 @@
 
       const progress_centerY = progress_canvas.height / 2;
       progress_ctx.lineWidth = progress_centerY * 2;
-      progress_ctx.strokeStyle = '#1C95D4';
+      progress_ctx.strokeStyle = '#2A6A47';
 
       if (timer_count === "up") {
         // アップ処理
@@ -742,7 +800,7 @@
           circle_ctx.moveTo(circle_centerX, circle_centerY);
           circle_ctx.arc(circle_centerX, circle_centerY, radius, startAngle, endAngle, false);
           circle_ctx.closePath();
-          circle_ctx.fillStyle = '#1C95D4';
+          circle_ctx.fillStyle = '#2A6A47';
           circle_ctx.fill();
 
           let endX = progress_canvas.width * (elapsedTime / total_seconds);
@@ -768,7 +826,7 @@
           circle_ctx.moveTo(circle_centerX, circle_centerY);
           circle_ctx.arc(circle_centerX, circle_centerY, radius, startAngle, endAngle, false);
           circle_ctx.closePath();
-          circle_ctx.fillStyle = "#1C95D4";
+          circle_ctx.fillStyle = '#2A6A47';
           circle_ctx.fill();
 
           let endX = progress_canvas.width * progress;
